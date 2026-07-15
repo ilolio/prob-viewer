@@ -65,6 +65,7 @@
 
     input[type="text"],
     input[type="number"],
+    select,
     textarea {
       width: 100%;
       background: var(--surface2);
@@ -77,9 +78,25 @@
       outline: none;
       transition: border-color 0.15s;
     }
-    input:focus, textarea:focus {
+    input:focus, select:focus, textarea:focus {
       border-color: var(--accent);
     }
+    select { cursor: pointer; height: 36px; }
+
+    .icon-btn {
+      flex: 0 0 auto;
+      padding: 0;
+      width: 36px;
+      height: 36px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.1rem;
+      line-height: 1;
+      border-radius: 6px;
+    }
+    .icon-btn.spinning { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     textarea { resize: vertical; }
 
     .row {
@@ -288,9 +305,18 @@
 </div>
 
 <div class="card">
-  <div class="field">
-    <label>Server URL</label>
-    <input type="text" id="serverUrl" value="http://localhost:41434" spellcheck="false">
+  <div class="row">
+    <div class="field" style="flex:2">
+      <label>Server URL</label>
+      <input type="text" id="serverUrl" value="http://localhost:41434" spellcheck="false">
+    </div>
+    <div class="field" style="flex:3">
+      <label>Model</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <select id="model" style="flex:1"></select>
+        <button id="refreshModelsBtn" type="button" class="icon-btn" title="モデル一覧を再取得">⟳</button>
+      </div>
+    </div>
   </div>
   <div class="field">
     <label>Prompt <span style="text-transform:none;font-weight:400;letter-spacing:0">(Ctrl+Enter で生成)</span></label>
@@ -333,6 +359,46 @@
 <script>
   let abortController = null;
   let generating = false;
+
+  // --- Model list ---
+  function currentServerUrl() {
+    return document.getElementById('serverUrl').value.trim().replace(/\/+$/, '');
+  }
+
+  async function loadModels() {
+    const serverUrl = currentServerUrl();
+    const select = document.getElementById('model');
+    const btn = document.getElementById('refreshModelsBtn');
+    const prev = select.value;
+    btn.classList.add('spinning');
+    try {
+      const res = await fetch(`${serverUrl}/v1/models`);
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      const ids = (data.data || []).map(m => m.id).filter(Boolean);
+      if (ids.length === 0) throw new Error('モデルが返されませんでした');
+
+      select.innerHTML = '';
+      ids.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = id;
+        select.appendChild(opt);
+      });
+      // 以前の選択を復元（存在すれば）
+      if (ids.includes(prev)) select.value = prev;
+      setStatus(`モデル ${ids.length} 件を取得`);
+    } catch (err) {
+      select.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '取得失敗';
+      select.appendChild(opt);
+      setStatus(`モデル一覧の取得に失敗: ${err.message}`, true);
+    } finally {
+      btn.classList.remove('spinning');
+    }
+  }
 
   // --- Color helpers ---
   function probToHsl(prob) {
@@ -481,7 +547,8 @@
       return;
     }
 
-    const serverUrl = document.getElementById('serverUrl').value.trim().replace(/\/+$/, '');
+    const serverUrl = currentServerUrl();
+    const model     = document.getElementById('model').value;
     const prompt    = document.getElementById('prompt').value;
     const nPredict  = parseInt(document.getElementById('nPredict').value) || 200;
     const nProbs    = parseInt(document.getElementById('nProbs').value) || 5;
@@ -504,7 +571,7 @@
           n_probs:   nProbs,
           temperature: isNaN(temp) ? 0.8 : temp,
           stream: true,
-          model: "qwen3.5-2b_ctx2k",
+          ...(model ? { model } : {}),
         }),
         signal: abortController.signal,
       });
@@ -588,6 +655,11 @@
 
   document.getElementById('generateBtn').addEventListener('click', handleGenerate);
   document.getElementById('clearBtn').addEventListener('click', clearOutput);
+  document.getElementById('refreshModelsBtn').addEventListener('click', loadModels);
+  // Server URL 変更時に一覧を再取得
+  document.getElementById('serverUrl').addEventListener('change', loadModels);
+  // 初回ロード
+  loadModels();
 
   document.getElementById('prompt').addEventListener('keydown', e => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
