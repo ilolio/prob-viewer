@@ -663,9 +663,9 @@
 
   const HIRAGANA = codeRange(0x3041, 0x3096) + 'ゝゞ';
   const KATAKANA = codeRange(0x30A1, 0x30FA) + 'ーヽヾ';
-  const LATIN    = 'abcdefghijklmnopqrstuvwxyz'
-                 + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                 + '0123456789';
+  const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
+                 + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const DIGITS   = '0123456789';
 
   // 日本語では使われない（または日本語表記が明確に別字体の）中国語文字。
   // 主に簡体字と中国語特有の機能語。
@@ -768,7 +768,8 @@
     { key: 'kata',  label: 'カタカナ',        entries: uniq(KATAKANA) },
     { key: 'kanji', label: '漢字（日本語）',  entries: kanjiChars },
     { key: 'zh',    label: '中国語専用文字',  entries: Array.from(chineseOnlySet).concat(chineseWords) },
-    { key: 'latin', label: 'ラテン文字・数字', entries: uniq(LATIN) },
+    { key: 'latin', label: 'アルファベット',  entries: uniq(ALPHABET) },
+    { key: 'digit', label: '数字',            entries: uniq(DIGITS) },
   ];
 
   const PRESETS = [
@@ -776,7 +777,8 @@
     { id: 'hira-up',    label: 'ひらがなを増やす',   values: { hira:   1.5 } },
     { id: 'kata-up',    label: 'カタカナを増やす',   values: { kata:   1.5 } },
     { id: 'kanji-down', label: '漢字を減らす',       values: { kanji: -1.5 } },
-    { id: 'latin-down', label: '英数字を減らす',     values: { latin: -2   } },
+    { id: 'latin-down', label: '英字を減らす',       values: { latin: -2   } },
+    { id: 'digit-down', label: '数字を減らす',       values: { digit: -2   } },
   ];
 
   const biasValues = {};
