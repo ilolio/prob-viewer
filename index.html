@@ -15,6 +15,8 @@
       --accent-dim: #dbeafe;
       --border: #e3e6ec;
       --danger: #dc2626;
+      --special: #7c3aed;
+      --special-dim: #ede9fe;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -145,7 +147,7 @@
       color: var(--text-dim);
     }
 
-    /* Character-class bias */
+    /* Collapsible card (文字種バイアス / special token) */
     .card-title {
       font-size: 0.8rem;
       font-weight: 700;
@@ -164,8 +166,8 @@
     }
 
     /* 折りたたみ（既定は閉じた状態） */
-    .bias-card { padding: 0; }
-    .bias-card > summary {
+    .fold-card { padding: 0; }
+    .fold-card > summary {
       display: flex;
       align-items: center;
       padding: 14px 18px;
@@ -175,8 +177,8 @@
       list-style: none;
       border-radius: 10px;
     }
-    .bias-card > summary::-webkit-details-marker { display: none; }
-    .bias-card > summary::before {
+    .fold-card > summary::-webkit-details-marker { display: none; }
+    .fold-card > summary::before {
       content: '▶';
       flex: 0 0 auto;
       margin-right: 8px;
@@ -184,17 +186,17 @@
       color: var(--text-dim);
       transition: transform 0.15s;
     }
-    .bias-card[open] > summary::before { transform: rotate(90deg); }
-    .bias-card > summary:hover { background: var(--surface2); }
-    .bias-card > summary:focus-visible { outline: 2px solid var(--accent); }
-    .bias-card[open] > summary {
+    .fold-card[open] > summary::before { transform: rotate(90deg); }
+    .fold-card > summary:hover { background: var(--surface2); }
+    .fold-card > summary:focus-visible { outline: 2px solid var(--accent); }
+    .fold-card[open] > summary {
       border-bottom: 1px solid var(--border);
       border-radius: 10px 10px 0 0;
     }
-    .bias-body { padding: 4px 18px 18px; }
+    .fold-body { padding: 4px 18px 18px; }
 
     /* 折りたたみ中でも適用状況がわかるバッジ */
-    .bias-badge {
+    .fold-badge {
       margin-left: auto;
       flex: 0 0 auto;
       font-size: 0.68rem;
@@ -205,7 +207,7 @@
       color: var(--accent);
       white-space: nowrap;
     }
-    .bias-badge:empty { display: none; }
+    .fold-badge:empty { display: none; }
 
     .preset-row {
       display: flex;
@@ -261,11 +263,105 @@
     .bias-value.up   { color: #15803d; font-weight: 700; }
     .bias-value.down { color: var(--danger); font-weight: 700; }
 
-    .bias-summary {
+    .fold-summary {
       margin-top: 10px;
       font-size: 0.74rem;
       color: var(--text-dim);
       line-height: 1.6;
+    }
+
+    /* Special token */
+    /* label の既定（大文字化・字間）を打ち消したチェックボックス行 */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 4px;
+      font-size: 0.78rem;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .check-row input[type="checkbox"] {
+      flex: 0 0 auto;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--special);
+      cursor: pointer;
+    }
+    .check-row code {
+      font-size: 0.74rem;
+      background: var(--surface2);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    .special-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 0 7px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .special-head .icon-btn {
+      width: 26px;
+      height: 26px;
+      font-size: 0.9rem;
+    }
+
+    .special-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    /* /props から取得した、このモデル固有の special token */
+    .chip.model {
+      background: var(--special-dim);
+      border-color: var(--special);
+      color: var(--special);
+      font-weight: 700;
+    }
+    .chip.in-prompt { box-shadow: inset 0 -2px 0 var(--special); }
+
+    .token-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 12px;
+      max-height: 190px;
+      overflow-y: auto;
+    }
+    .token-preview:empty { display: none; }
+    .tp-tok {
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      white-space: pre;
+    }
+    .tp-tok.special {
+      background: var(--special-dim);
+      border-color: var(--special);
+      color: var(--special);
+      font-weight: 700;
     }
 
     /* Output area */
@@ -299,6 +395,14 @@
     .tok.no-prob {
       background: transparent;
       color: var(--text-dim);
+    }
+
+    /* Special token は紫の枠で区別（背景色は確率のまま） */
+    .tok.tok-special {
+      outline: 1px dashed var(--special);
+      outline-offset: -1px;
+      color: var(--special);
+      font-weight: 700;
     }
 
     /* Newline visual marker */
@@ -407,6 +511,20 @@
     }
     .tt-row.chosen .tt-pct { color: var(--text); font-weight: 600; }
 
+    .tt-flag {
+      display: inline-block;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      vertical-align: middle;
+      margin-left: 5px;
+      padding: 1px 5px;
+      border-radius: 999px;
+      background: var(--special-dim);
+      color: var(--special);
+    }
+    .tt-tok.special { color: var(--special); }
+
     .tt-divider {
       height: 1px;
       background: var(--border);
@@ -468,12 +586,32 @@
   </div>
 </div>
 
-<details class="card bias-card" id="biasCard">
-  <summary class="card-title">文字種バイアス<span class="card-note">logit_bias で出やすさを調整（確率 0 にはしません）</span><span class="bias-badge" id="biasBadge"></span></summary>
-  <div class="bias-body">
+<details class="card fold-card" id="specialCard">
+  <summary class="card-title">Special token<span class="card-note">プロンプトへの挿入と、出力での表示を切り替え</span><span class="fold-badge" id="specialBadge"></span></summary>
+  <div class="fold-body">
+    <label class="check-row">
+      <input type="checkbox" id="specialOutput" checked>
+      <span>出力に special token を表示する（リクエストに <code>special: true</code> を送信）</span>
+    </label>
+    <div class="special-head">
+      <span>プロンプトへ挿入</span>
+      <button id="refreshSpecialBtn" type="button" class="icon-btn" title="/props から special token を再取得">⟳</button>
+    </div>
+    <div class="special-chips" id="specialChips"></div>
+    <div class="btn-row">
+      <button id="tokenizeBtn" type="button" class="preset">プロンプトをトークナイズして確認</button>
+    </div>
+    <div class="token-preview" id="tokenPreview"></div>
+    <div class="fold-summary" id="specialSummary"></div>
+  </div>
+</details>
+
+<details class="card fold-card" id="biasCard">
+  <summary class="card-title">文字種バイアス<span class="card-note">logit_bias で出やすさを調整（確率 0 にはしません）</span><span class="fold-badge" id="biasBadge"></span></summary>
+  <div class="fold-body">
     <div class="preset-row" id="presetRow"></div>
     <div id="biasControls"></div>
-    <div class="bias-summary" id="biasSummary"></div>
+    <div class="fold-summary" id="biasSummary"></div>
   </div>
 </details>
 
@@ -576,6 +714,11 @@
     const hasNewline = content.includes('\n');
     if (hasNewline) span.classList.add('tok-nl');
 
+    // special token（<|im_end|> など）は枠線で区別する
+    const special = isSpecialToken(content);
+    if (special) span.classList.add('tok-special');
+    span.dataset.special = special ? '1' : '';
+
     span.textContent = content;
     span.dataset.probs = JSON.stringify(probs || []);
     span.dataset.content = content;
@@ -598,8 +741,12 @@
 
     const maxProb = Math.max(...probs.map(p => p.prob));
 
+    const special = e.currentTarget.dataset.special === '1';
+
     let html = `<div class="tt-label">選択されたトークン</div>`;
-    html += `<div class="tt-token">${esc(displayStr(content))}</div>`;
+    html += `<div class="tt-token">${esc(displayStr(content))}`
+          + (special ? `<span class="tt-flag">special token</span>` : '')
+          + `</div>`;
     html += `<div class="tt-divider"></div>`;
     html += `<div class="tt-label">上位候補</div>`;
 
@@ -609,9 +756,10 @@
       const color = probToHsl(p.prob);
       const chosen = p.chosen ? 'chosen' : '';
       const mark = p.chosen ? ' ✓' : '';
+      const sp = isSpecialToken(p.tok_str) ? ' special' : '';
       html += `
         <div class="tt-row ${chosen}">
-          <span class="tt-tok" title="${esc(displayStr(p.tok_str))}">${esc(displayStr(p.tok_str))}${mark}</span>
+          <span class="tt-tok${sp}" title="${esc(displayStr(p.tok_str))}">${esc(displayStr(p.tok_str))}${mark}</span>
           <div class="tt-bar-wrap">
             <div class="tt-bar" style="width:${barW}%;background:${color}"></div>
           </div>
@@ -914,6 +1062,227 @@
     return out;
   }
 
+  // --- Special token ---
+  // 入力：/completion のプロンプトは parse_special 付きでトークナイズされるため、
+  //       <|im_start|> などをそのまま書けば 1 トークンとして解釈される。
+  //       チップで挿入でき、/tokenize で実際に 1 トークンになるか確認できる。
+  // 出力：llama-server は既定で special token を content から取り除く。
+  //       リクエストに special: true を送ると出力にもそのまま現れる。
+
+  // モデルを問わず出てくる代表的な special token（/props で取れない分の補助）
+  const BUILTIN_SPECIAL_TOKENS = [
+    '<s>', '</s>', '<unk>', '<pad>', '<mask>',
+    '<|endoftext|>', '<|begin_of_text|>', '<|end_of_text|>',
+    '<|im_start|>', '<|im_end|>',
+    '<|start_header_id|>', '<|end_header_id|>', '<|eot_id|>', '<|eom_id|>',
+    '<start_of_turn>', '<end_of_turn>',
+    '<|system|>', '<|user|>', '<|assistant|>',
+    '<|fim_prefix|>', '<|fim_middle|>', '<|fim_suffix|>',
+    '[INST]', '[/INST]', '<<SYS>>', '<</SYS>>',
+  ];
+
+  // <|...|> 形式は既知リストになくても special token とみなす
+  const SPECIAL_LIKE = /^<\|[^<>]*\|>$/;
+
+  // /props（bos_token / eos_token / chat_template）から拾った、このモデル固有のもの
+  let modelSpecialTokens = [];
+  let specialTokenSet = new Set(BUILTIN_SPECIAL_TOKENS);
+
+  function rebuildSpecialTokenSet() {
+    specialTokenSet = new Set(BUILTIN_SPECIAL_TOKENS.concat(modelSpecialTokens));
+  }
+
+  function knownSpecialTokens() {
+    // モデル固有のものを先頭に、既定の候補を後ろに並べる
+    return modelSpecialTokens.concat(
+      BUILTIN_SPECIAL_TOKENS.filter(t => !modelSpecialTokens.includes(t))
+    );
+  }
+
+  function isSpecialToken(str) {
+    if (typeof str !== 'string' || str === '') return false;
+    return specialTokenSet.has(str) || SPECIAL_LIKE.test(str);
+  }
+
+  // チャットテンプレート（Jinja）から <|...|> / <...> / [INST] 形式を抜き出す
+  function extractSpecialFromTemplate(tpl) {
+    const re = /<\|[^<>|]+\|>|<<\/?SYS>>|<\/?[A-Za-z][A-Za-z0-9_]*>|\[\/?INST\]/g;
+    return (tpl.match(re) || []);
+  }
+
+  function uniqList(arr) {
+    return Array.from(new Set(arr.filter(t => typeof t === 'string' && t !== '')));
+  }
+
+  function setSpecialNote(msg, isError = false) {
+    const el = document.getElementById('specialSummary');
+    el.textContent = msg;
+    el.style.color = isError ? 'var(--danger)' : '';
+  }
+
+  // /props からモデル固有の special token を取得
+  async function loadSpecialTokens() {
+    const serverUrl = currentServerUrl();
+    const btn = document.getElementById('refreshSpecialBtn');
+    btn.classList.add('spinning');
+    try {
+      const res = await fetch(`${serverUrl}/props`);
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      const props = await res.json();
+      const found = [props.bos_token, props.eos_token, props.eot_token];
+      const tpl = typeof props.chat_template === 'string' ? props.chat_template : '';
+      extractSpecialFromTemplate(tpl).forEach(t => found.push(t));
+      modelSpecialTokens = uniqList(found);
+      setSpecialNote(modelSpecialTokens.length > 0
+        ? `/props からモデル固有の special token ${modelSpecialTokens.length} 件を取得（紫のチップ）。`
+        : '/props からは special token を検出できませんでした。既定の候補のみ表示しています。');
+    } catch (err) {
+      modelSpecialTokens = [];
+      setSpecialNote(`/props の取得に失敗: ${err.message} — 既定の候補のみ表示しています。`, true);
+      setStatus(`special token の取得に失敗: ${err.message}`, true);
+    } finally {
+      btn.classList.remove('spinning');
+      rebuildSpecialTokenSet();
+      renderSpecialChips();
+      updateSpecialBadge();
+    }
+  }
+
+  function renderSpecialChips() {
+    const wrap = document.getElementById('specialChips');
+    const promptText = document.getElementById('prompt').value;
+    wrap.innerHTML = '';
+    knownSpecialTokens().forEach(tok => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip'
+        + (modelSpecialTokens.includes(tok) ? ' model' : '')
+        + (promptText.includes(tok) ? ' in-prompt' : '');
+      btn.textContent = tok;
+      btn.title = modelSpecialTokens.includes(tok)
+        ? 'このモデルの special token — クリックでプロンプトに挿入'
+        : '一般的な special token — クリックでプロンプトに挿入';
+      btn.addEventListener('click', () => insertIntoPrompt(tok));
+      wrap.appendChild(btn);
+    });
+  }
+
+  // カーソル位置に挿入（選択範囲があれば置換）
+  function insertIntoPrompt(text) {
+    const el = document.getElementById('prompt');
+    const start = el.selectionStart ?? el.value.length;
+    const end   = el.selectionEnd   ?? el.value.length;
+    el.value = el.value.slice(0, start) + text + el.value.slice(end);
+    const pos = start + text.length;
+    el.focus();
+    el.setSelectionRange(pos, pos);
+    updateSpecialBadge();
+  }
+
+  // プロンプトに含まれる special token を数える
+  function findSpecialInPrompt(text) {
+    const hits = [];
+    knownSpecialTokens().forEach(tok => {
+      let idx = 0, count = 0;
+      while ((idx = text.indexOf(tok, idx)) !== -1) { count++; idx += tok.length; }
+      if (count > 0) hits.push({ token: tok, count });
+    });
+    return hits;
+  }
+
+  function specialOutputEnabled() {
+    return document.getElementById('specialOutput').checked;
+  }
+
+  function updateSpecialBadge() {
+    const promptText = document.getElementById('prompt').value;
+    const hits = findSpecialInPrompt(promptText);
+    const total = hits.reduce((n, h) => n + h.count, 0);
+    const badge = document.getElementById('specialBadge');
+
+    const parts = [];
+    if (total > 0) parts.push(`プロンプト ${total}`);
+    parts.push(specialOutputEnabled() ? '出力 表示' : '出力 非表示');
+    badge.textContent = parts.join(' / ');
+    badge.title = total > 0
+      ? hits.map(h => `${h.token} ×${h.count}`).join(' / ')
+      : 'プロンプトに special token はありません';
+
+    renderSpecialChips();
+  }
+
+  // /tokenize で、プロンプトが実際にどう分割されるかを確認する
+  async function tokenizePrompt() {
+    const serverUrl = currentServerUrl();
+    const promptText = document.getElementById('prompt').value;
+    const preview = document.getElementById('tokenPreview');
+    const btn = document.getElementById('tokenizeBtn');
+
+    btn.disabled = true;
+    preview.innerHTML = '';
+    try {
+      const res = await fetch(`${serverUrl}/tokenize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: promptText, with_pieces: true }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      renderTokenPreview(Array.isArray(data.tokens) ? data.tokens : []);
+    } catch (err) {
+      setSpecialNote(`トークナイズに失敗: ${err.message}`, true);
+      setStatus(`トークナイズに失敗: ${err.message}`, true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderTokenPreview(tokens) {
+    const preview = document.getElementById('tokenPreview');
+    preview.innerHTML = '';
+
+    if (tokens.length === 0) {
+      setSpecialNote('トークンが返されませんでした（プロンプトが空の可能性があります）。');
+      return;
+    }
+
+    // with_pieces 未対応のサーバは ID の配列だけを返す
+    if (typeof tokens[0] === 'number') {
+      tokens.forEach(id => {
+        const el = document.createElement('span');
+        el.className = 'tp-tok';
+        el.textContent = `#${id}`;
+        preview.appendChild(el);
+      });
+      setSpecialNote(
+        `${tokens.length} トークン。このサーバは /tokenize の with_pieces に未対応のため、`
+        + 'トークン ID のみ表示しています（special token の判別はできません）。');
+      return;
+    }
+
+    let specialCount = 0;
+    tokens.forEach(t => {
+      // piece は文字列。UTF-8 として不正なトークンはバイト配列で返ることがある。
+      const isBytes = Array.isArray(t.piece);
+      const piece   = typeof t.piece === 'string' ? t.piece : '';
+      const label   = isBytes
+        ? t.piece.map(b => '\\x' + b.toString(16).padStart(2, '0')).join('')
+        : displayStr(piece);
+      const special = isSpecialToken(piece);
+      if (special) specialCount++;
+
+      const el = document.createElement('span');
+      el.className = 'tp-tok' + (special ? ' special' : '');
+      el.textContent = label;
+      el.title = `id: ${t.id}`;
+      preview.appendChild(el);
+    });
+
+    setSpecialNote(
+      `${tokens.length} トークン（うち special token ${specialCount} 件）。`
+      + ' special token が 1 つのトークンになっていれば、プロンプトとして正しく解釈されています。');
+  }
+
   // --- Generate ---
   function setGenerating(v) {
     generating = v;
@@ -952,6 +1321,7 @@
     const nProbs    = parseInt(document.getElementById('nProbs').value) || 5;
     const temp      = parseFloat(document.getElementById('temperature').value);
     const logitBias = buildLogitBias();
+    const special   = specialOutputEnabled();
 
     clearOutput();
     setGenerating(true);
@@ -970,6 +1340,8 @@
           n_probs:   nProbs,
           temperature: isNaN(temp) ? 0.8 : temp,
           stream: true,
+          // true にすると <|im_end|> などが content にそのまま載る（既定は除去される）
+          special,
           ...(logitBias.length > 0 ? { logit_bias: logitBias } : {}),
           ...(model ? { model } : {}),
         }),
@@ -986,7 +1358,7 @@
       const decoder = new TextDecoder();
       let buf = '';
       let tokenCount = 0;
-      let stopped = false;
+      let specialCount = 0;
 
       outer: while (true) {
         const { done, value } = await reader.read();
@@ -1001,13 +1373,13 @@
 
           if (!line.startsWith('data: ')) continue;
           const raw = line.slice(6).trim();
-          if (raw === '[DONE]') { stopped = true; break outer; }
+          if (raw === '[DONE]') break outer;
 
           let data;
           try { data = JSON.parse(raw); } catch { continue; }
 
-          if (data.stop) { stopped = true; break outer; }
-
+          // stop チャンクにも content が載ることがある（special: true では EOS 自身）。
+          // 取りこぼさないよう、先に content を処理してから終了する。
           const content = data.content ?? '';
           let probs = [];
           if (Array.isArray(data.completion_probabilities) && data.completion_probabilities.length > 0) {
@@ -1035,11 +1407,16 @@
           if (content !== '') {
             outputEl.appendChild(makeToken(content, probs));
             tokenCount++;
+            if (isSpecialToken(content)) specialCount++;
           }
+
+          if (data.stop) break outer;
         }
       }
 
-      setStatus(`完了 — ${tokenCount} トークン生成`);
+      setStatus(`完了 — ${tokenCount} トークン生成`
+        + (specialCount > 0 ? `（うち special token ${specialCount}）` : '')
+        + (special ? '' : ' / special token は非表示'));
 
     } catch (err) {
       if (err.name === 'AbortError') {
@@ -1053,14 +1430,31 @@
     }
   }
 
+  // モデル一覧と special token をまとめて取得（ステータス表示が競合しないよう順番に）
+  async function refreshServerInfo() {
+    await loadModels();
+    await loadSpecialTokens();
+  }
+
   document.getElementById('generateBtn').addEventListener('click', handleGenerate);
   document.getElementById('clearBtn').addEventListener('click', clearOutput);
   document.getElementById('refreshModelsBtn').addEventListener('click', loadModels);
-  // Server URL 変更時に一覧を再取得
-  document.getElementById('serverUrl').addEventListener('change', loadModels);
+  document.getElementById('refreshSpecialBtn').addEventListener('click', e => {
+    e.preventDefault();     // summary 内のボタンで開閉させない
+    loadSpecialTokens();
+  });
+  document.getElementById('tokenizeBtn').addEventListener('click', tokenizePrompt);
+  document.getElementById('specialOutput').addEventListener('change', updateSpecialBadge);
+  document.getElementById('prompt').addEventListener('input', updateSpecialBadge);
+
+  // Server URL 変更時にモデル一覧と special token を再取得
+  document.getElementById('serverUrl').addEventListener('change', refreshServerInfo);
+
   // 初回ロード
   renderBiasControls();
-  loadModels();
+  renderSpecialChips();
+  updateSpecialBadge();
+  refreshServerInfo();
 
   document.getElementById('prompt').addEventListener('keydown', e => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
